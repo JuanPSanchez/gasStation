@@ -1,6 +1,20 @@
-*.class
+nfo files
+/.*
+.*
+*~
+!.gitignore
 
-# Package Files #
-*.jar
-*.war
-*.ear
+#Binaries
+target/
+bin/
+generated/
+
+#From tests
+test-output
+
+#Others
+snapshots
+*.impl
+*.log
+*.iml
+*.xpr

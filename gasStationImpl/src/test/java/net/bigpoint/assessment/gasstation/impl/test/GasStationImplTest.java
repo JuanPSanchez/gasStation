@@ -1,7 +1,11 @@
 package net.bigpoint.assessment.gasstation.impl.test;
 
+import java.util.List;
+import java.util.concurrent.CyclicBarrier;
+
 import junit.framework.Assert;
 import net.bigpoint.assesment.gasstation.impl.GasStationImpl;
+import net.bigpoint.assesment.gasstation.utils.GasStationUtils;
 import net.bigpoint.assessment.gasstation.GasPump;
 import net.bigpoint.assessment.gasstation.GasType;
 import net.bigpoint.assessment.gasstation.exceptions.GasTooExpensiveException;
@@ -84,6 +88,29 @@ public class GasStationImplTest {
         Assert.assertEquals(expectedLitersOfGasSold1, actualLitersOfGasSold1);
         Assert.assertEquals(expectedLitersOfGasSold2, actualLitersOfGasSold2);
 
+    }
+
+    @Test
+    public void shouldReturnTheGasPrices() throws Exception {
+
+        // Given
+        double maxPricePerLiter1 = 1.5d;
+        double maxPricePerLiter2 = 1.6d;
+        double maxPricePerLiter3 = 1.7d;
+
+        // When
+        gasStation.setPrice(GasType.DIESEL, maxPricePerLiter1);
+        gasStation.setPrice(GasType.SUPER, maxPricePerLiter2);
+        gasStation.setPrice(GasType.REGULAR, maxPricePerLiter3);
+
+        double expectedGasPrice1 = gasStation.getPrice(GasType.DIESEL);
+        double expectedGasPrice2 = gasStation.getPrice(GasType.SUPER);
+        double expectedGasPrice3 = gasStation.getPrice(GasType.REGULAR);
+
+        // Then
+        Assert.assertEquals(expectedGasPrice1, maxPricePerLiter1);
+        Assert.assertEquals(expectedGasPrice2, maxPricePerLiter2);
+        Assert.assertEquals(expectedGasPrice3, maxPricePerLiter3);
     }
 
     @Test
@@ -257,6 +284,184 @@ public class GasStationImplTest {
 
     }
 
+    @Test
+    public void shouldReturnTheNumberOfCancelledSalesWhenTheGasIsTooPricey() throws Exception {
+
+        // Given
+        double amountInLiters = 50d;
+        double maxPricePerLiter = 1.5d;
+
+        GasPump pump1 = new GasPump(GasType.DIESEL, amountInLiters);
+        GasPump pump2 = new GasPump(GasType.SUPER, amountInLiters);
+
+        int expectedNumberOfCancelledSales = 2;
+
+        // When
+        gasStation.addGasPump(pump1);
+        gasStation.addGasPump(pump2);
+        gasStation.setPrice(GasType.DIESEL, maxPricePerLiter + 0.1);
+        gasStation.setPrice(GasType.SUPER, maxPricePerLiter + 0.2);
+
+        try {
+            gasStation.buyGas(GasType.DIESEL, amountInLiters, maxPricePerLiter);
+        } catch (GasTooExpensiveException e) {
+            // Don't do anything
+        }
+
+        try {
+            gasStation.buyGas(GasType.SUPER, amountInLiters, maxPricePerLiter);
+        } catch (GasTooExpensiveException e) {
+            // Don't do anything
+        }
+
+        int actualNumberOfCancelledSales = gasStation.getNumberOfCancellationsTooExpensive();
+
+        // Then
+        Assert.assertEquals(expectedNumberOfCancelledSales, actualNumberOfCancelledSales);
+
+    }
+
+    @Test
+    public void shouldReturnTheNumberOfCancelledSalesWhenTheGasIsTooPriceyByGasType() throws Exception {
+
+        // Given
+        double amountInLiters = 50d;
+        double maxPricePerLiter = 1.5d;
+
+        GasPump pump1 = new GasPump(GasType.DIESEL, amountInLiters);
+        GasPump pump2 = new GasPump(GasType.SUPER, amountInLiters);
+
+        int expectedNumberOfCancelledSales1 = 3;
+        int expectedNumberOfCancelledSales2 = 1;
+
+        // When
+        gasStation.addGasPump(pump1);
+        gasStation.addGasPump(pump2);
+        gasStation.setPrice(GasType.DIESEL, maxPricePerLiter + 0.1);
+        gasStation.setPrice(GasType.SUPER, maxPricePerLiter + 0.2);
+
+        try {
+            gasStation.buyGas(GasType.DIESEL, amountInLiters, maxPricePerLiter);
+        } catch (GasTooExpensiveException e) {
+            // Don't do anything
+        }
+
+        try {
+            gasStation.buyGas(GasType.DIESEL, amountInLiters, maxPricePerLiter);
+        } catch (GasTooExpensiveException e) {
+            // Don't do anything
+        }
+
+        try {
+            gasStation.buyGas(GasType.DIESEL, amountInLiters, maxPricePerLiter);
+        } catch (GasTooExpensiveException e) {
+            // Don't do anything
+        }
+
+        try {
+            gasStation.buyGas(GasType.SUPER, amountInLiters, maxPricePerLiter);
+        } catch (GasTooExpensiveException e) {
+            // Don't do anything
+        }
+
+        int actualNumberOfCancelledSales1 = gasStation.getNumberOfCancellationsTooExpensive(GasType.DIESEL);
+        int actualNumberOfCancelledSales2 = gasStation.getNumberOfCancellationsTooExpensive(GasType.SUPER);
+
+        // Then
+        Assert.assertEquals(expectedNumberOfCancelledSales1, actualNumberOfCancelledSales1);
+        Assert.assertEquals(expectedNumberOfCancelledSales2, actualNumberOfCancelledSales2);
+
+    }
+
+    @Test
+    public void shouldReturnTheNumberOfCancelledSalesWhenThereIsNoEnoughGas() throws Exception {
+
+        // Given
+        double amountInLiters = 50d;
+        double maxPricePerLiter = 1.5d;
+
+        GasPump pump1 = new GasPump(GasType.DIESEL, amountInLiters);
+        GasPump pump2 = new GasPump(GasType.SUPER, amountInLiters);
+
+        int expectedNumberOfCancelledSales = 2;
+
+        // When
+        gasStation.addGasPump(pump1);
+        gasStation.addGasPump(pump2);
+        gasStation.setPrice(GasType.DIESEL, maxPricePerLiter);
+        gasStation.setPrice(GasType.SUPER, maxPricePerLiter);
+
+        try {
+            gasStation.buyGas(GasType.DIESEL, amountInLiters + 10, maxPricePerLiter);
+        } catch (NotEnoughGasException e) {
+            // Don't do anything
+        }
+
+        try {
+            gasStation.buyGas(GasType.SUPER, amountInLiters + 10, maxPricePerLiter);
+        } catch (NotEnoughGasException e) {
+            // Don't do anything
+        }
+
+        int actualNumberOfCancelledSales = gasStation.getNumberOfCancellationsNoGas();
+
+        // Then
+        Assert.assertEquals(expectedNumberOfCancelledSales, actualNumberOfCancelledSales);
+
+    }
+
+    @Test
+    public void shouldReturnTheNumberOfCancelledSalesWhenThereIsNoEnoughGasByGasType() throws Exception {
+
+        // Given
+        double amountInLiters = 50d;
+        double maxPricePerLiter = 1.5d;
+
+        GasPump pump1 = new GasPump(GasType.DIESEL, amountInLiters);
+        GasPump pump2 = new GasPump(GasType.SUPER, amountInLiters);
+
+        int expectedNumberOfCancelledSales1 = 3;
+        int expectedNumberOfCancelledSales2 = 1;
+
+        // When
+        gasStation.addGasPump(pump1);
+        gasStation.addGasPump(pump2);
+        gasStation.setPrice(GasType.DIESEL, maxPricePerLiter);
+        gasStation.setPrice(GasType.SUPER, maxPricePerLiter);
+
+        try {
+            gasStation.buyGas(GasType.DIESEL, amountInLiters + 10, maxPricePerLiter);
+        } catch (NotEnoughGasException e) {
+            // Don't do anything
+        }
+
+        try {
+            gasStation.buyGas(GasType.DIESEL, amountInLiters + 10, maxPricePerLiter);
+        } catch (NotEnoughGasException e) {
+            // Don't do anything
+        }
+
+        try {
+            gasStation.buyGas(GasType.DIESEL, amountInLiters + 10, maxPricePerLiter);
+        } catch (NotEnoughGasException e) {
+            // Don't do anything
+        }
+
+        try {
+            gasStation.buyGas(GasType.SUPER, amountInLiters + 10, maxPricePerLiter);
+        } catch (NotEnoughGasException e) {
+            // Don't do anything
+        }
+
+        int actualNumberOfCancelledSales1 = gasStation.getNumberOfCancellationsNoGas(GasType.DIESEL);
+        int actualNumberOfCancelledSales2 = gasStation.getNumberOfCancellationsNoGas(GasType.SUPER);
+
+        // Then
+        Assert.assertEquals(expectedNumberOfCancelledSales1, actualNumberOfCancelledSales1);
+        Assert.assertEquals(expectedNumberOfCancelledSales2, actualNumberOfCancelledSales2);
+
+    }
+
     @Test(expected = GasTooExpensiveException.class)
     public void shouldThrowANewGasTooExpensiveExceptionIfTheGasIsTooPricey() throws Exception {
 
@@ -300,6 +505,38 @@ public class GasStationImplTest {
         // Then
 
         // Exception !!!
+
+    }
+
+    @Test
+    public void shouldPreserveTheCorrectDataOnSharedVariableContainingTheGasPumps() throws Exception {
+
+        // Given
+        double amountInLiters = 50d;
+        double maxPricePerLiter = 1.5d;
+
+        final CyclicBarrier gate = new CyclicBarrier(3); // make the threads start at unison using a barrier gate
+
+        GasStationUtils.createAndActivateUser(gasStation, gate, "Anne", 25d, 1.5, GasType.DIESEL);
+        GasStationUtils.createAndActivateUser(gasStation, gate, "Jimmy", 20d, 1.5, GasType.DIESEL);
+
+        GasPump pump1 = new GasPump(GasType.DIESEL, amountInLiters);
+
+        double expectedPumpGasContentAfterOperation = 5d;
+
+        // When
+        gasStation.addGasPump(pump1);
+        gasStation.setPrice(GasType.DIESEL, maxPricePerLiter);
+        gate.await(); // go!
+
+        Thread.sleep(5000); // wait for the people to fill in the gas!
+
+        List<GasPump> pumpList = (List<GasPump>) gasStation.getGasPumps();
+        pumpList.get(0).getRemainingAmount();
+        double actualPumpGasContentAfterOperation = pumpList.get(0).getRemainingAmount();
+
+        // Then
+        Assert.assertEquals(expectedPumpGasContentAfterOperation, actualPumpGasContentAfterOperation);
 
     }
 }

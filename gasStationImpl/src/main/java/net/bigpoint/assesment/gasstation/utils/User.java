@@ -1,4 +1,4 @@
-package net.bigpoint.assesment.gasstation.data;
+package net.bigpoint.assesment.gasstation.utils;
 
 import java.util.concurrent.BrokenBarrierException;
 import java.util.concurrent.CyclicBarrier;

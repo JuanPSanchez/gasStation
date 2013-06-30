@@ -1,4 +1,4 @@
-package net.bigpont.assesment.gasstation.data.test;
+package net.bigpont.assesment.gasstation.utils.test;
 
 /**
  * 

@@ -2,8 +2,8 @@ package net.bigpont.assesment.gasstation.main;
 
 import java.util.concurrent.CyclicBarrier;
 
-import net.bigpoint.assesment.gasstation.data.User;
 import net.bigpoint.assesment.gasstation.impl.GasStationImpl;
+import net.bigpoint.assesment.gasstation.utils.GasStationUtils;
 import net.bigpoint.assessment.gasstation.GasPump;
 import net.bigpoint.assessment.gasstation.GasStation;
 import net.bigpoint.assessment.gasstation.GasType;
@@ -40,77 +40,29 @@ public class MainClass {
         gasStation.setPrice(GasType.SUPER, 1.5);
 
         // pumps status before
-        getPumpsStatus(gasStation);
+        GasStationUtils.getPumpsStatus(gasStation);
 
         final CyclicBarrier gate = new CyclicBarrier(4); // make the threads start at unison using a barrier gate
 
-        createAndActivateUser(gasStation, gate, "Ralph", 30d, 1.4d, GasType.DIESEL);
-        createAndActivateUser(gasStation, gate, "Mary", 40d, 1.48d, GasType.DIESEL);
-        createAndActivateUser(gasStation, gate, "John", 30d, 1.60d, GasType.DIESEL);
+        GasStationUtils.createAndActivateUser(gasStation, gate, "Ralph", 30d, 1.4d, GasType.DIESEL);
+        GasStationUtils.createAndActivateUser(gasStation, gate, "Mary", 40d, 1.48d, GasType.DIESEL);
+        GasStationUtils.createAndActivateUser(gasStation, gate, "John", 30d, 1.60d, GasType.DIESEL);
 
-        gate.await();
+        gate.await(); // go!
 
         System.out.println("\nAll threads started\n");
 
         Thread.sleep(5000 * NUMBER_OF_USERS);
 
         // stats per gas type
-        getStatsPerGasType(gasStation);
+        GasStationUtils.getStatsPerGasType(gasStation);
 
         // stats totals
-        getStatsTotals(gasStation);
+        GasStationUtils.getStatsTotals(gasStation);
 
         // pump status afterwards
-        getPumpsStatus(gasStation);
+        GasStationUtils.getPumpsStatus(gasStation);
 
     }
 
-    private static void getStatsPerGasType(GasStation gasStation) {
-        System.out.println("\n");
-        for (GasType gasType : GasType.values()) {
-            System.out.println("Sold " + gasStation.getAmountSold(gasType) + " liters of " + gasType + ".");
-            System.out.println("Earned " + gasStation.getRevenue(gasType) + " euros for " + gasType + ".");
-            System.out.println("Performed " + gasStation.getNumberOfSales(gasType) + " successful sales for " + gasType
-                    + ".");
-            System.out.println("Cancelled " + gasStation.getNumberOfCancellationsNoGas(gasType) + " sales for "
-                    + gasType + " due to insufficient gas available.");
-            System.out.println("Cancelled " + gasStation.getNumberOfCancellationsTooExpensive(gasType) + " sales for "
-                    + gasType + " due the gas being too expensive.\n");
-        }
-    }
-
-    private static void getStatsTotals(GasStation gasStation) {
-        System.out.println("\nTotals: ");
-        System.out.println("Earned " + gasStation.getRevenue() + " euros in total.");
-        System.out.println("Performed " + gasStation.getNumberOfSales() + " successful sales.");
-        System.out.println("Cancelled " + gasStation.getNumberOfCancellationsNoGas()
-                + " sales due to insufficient gas available.");
-        System.out.println("Cancelled " + gasStation.getNumberOfCancellationsTooExpensive()
-                + " sales due the gas being too expensive.");
-    }
-
-    private static void getPumpsStatus(GasStation gasStation) {
-        System.out.println("\nStatus of the Pumps:");
-
-        for (GasPump gasPump : gasStation.getGasPumps()) {
-            System.out.println("Gas pump of " + gasPump.getGasType() + ". " + gasPump.getRemainingAmount()
-                    + " liters of gas remaining.");
-        }
-    }
-
-    private static void createAndActivateUser(GasStation gasStation, final CyclicBarrier gate, String userName,
-            Double gasNeeded, Double maxMoneyPerLiter, GasType gasType) {
-        User user = new User();
-
-        user.setGasStation(gasStation);
-        user.setGate(gate);
-        user.setUserName(userName);
-        user.setGasNeeded(gasNeeded);
-        user.setMaxMoneyPerLiter(maxMoneyPerLiter);
-        user.setTypeOfGasNeeded(gasType);
-
-        Thread someThread = new Thread(user);
-        someThread.start();
-
-    }
 }

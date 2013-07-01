@@ -107,7 +107,7 @@
 						<compress>true</compress>
 						<manifest>
 							<addClasspath>true</addClasspath>
-							<mainClass>net.bigpont.assesment.gasstation.main.MainClass</mainClass>
+							<mainClass>net.bigpoint.assessment.gasstation.main.MainClass</mainClass>
 						</manifest>
 					</archive>
 				</configuration>

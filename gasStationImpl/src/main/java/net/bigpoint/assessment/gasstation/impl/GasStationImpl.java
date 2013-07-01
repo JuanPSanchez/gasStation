@@ -1,4 +1,4 @@
-package net.bigpoint.assesment.gasstation.impl;
+package net.bigpoint.assessment.gasstation.impl;
 
 import java.util.ArrayList;
 import java.util.Collection;

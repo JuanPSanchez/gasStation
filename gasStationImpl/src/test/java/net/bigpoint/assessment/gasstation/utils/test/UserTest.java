@@ -1,13 +1,13 @@
-package net.bigpont.assesment.gasstation.utils.test;
+package net.bigpoint.assessment.gasstation.utils.test;
 
 import java.util.concurrent.CyclicBarrier;
 
 import junit.framework.Assert;
-import net.bigpoint.assesment.gasstation.utils.User;
 import net.bigpoint.assessment.gasstation.GasStation;
 import net.bigpoint.assessment.gasstation.GasType;
 import net.bigpoint.assessment.gasstation.exceptions.GasTooExpensiveException;
 import net.bigpoint.assessment.gasstation.exceptions.NotEnoughGasException;
+import net.bigpoint.assessment.gasstation.utils.User;
 
 import org.junit.Before;
 import org.junit.Test;

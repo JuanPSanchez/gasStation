@@ -1,10 +1,14 @@
 package net.bigpoint.assesment.gasstation.utils;
 
+import java.text.MessageFormat;
 import java.util.concurrent.CyclicBarrier;
 
 import net.bigpoint.assessment.gasstation.GasPump;
 import net.bigpoint.assessment.gasstation.GasStation;
 import net.bigpoint.assessment.gasstation.GasType;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * 
@@ -15,36 +19,77 @@ import net.bigpoint.assessment.gasstation.GasType;
  */
 public class GasStationUtils {
 
-    public static void getStatsPerGasType(GasStation gasStation) {
+    private static Logger logger = LoggerFactory.getLogger(GasStationUtils.class);
+
+    public static void showStatsPerGasType(GasStation gasStation) {
+
+        String message = "";
+
         System.out.println("\n");
         for (GasType gasType : GasType.values()) {
-            System.out.println("Sold " + gasStation.getAmountSold(gasType) + " liters of " + gasType + ".");
-            System.out.println("Earned " + gasStation.getRevenue(gasType) + " euros for " + gasType + ".");
-            System.out.println("Performed " + gasStation.getNumberOfSales(gasType) + " successful sales for " + gasType
-                    + ".");
-            System.out.println("Cancelled " + gasStation.getNumberOfCancellationsNoGas(gasType) + " sales for "
-                    + gasType + " due to insufficient gas available.");
-            System.out.println("Cancelled " + gasStation.getNumberOfCancellationsTooExpensive(gasType) + " sales for "
-                    + gasType + " due the gas being too expensive.\n");
+
+            message = MessageFormat.format("Sold {0} liters of {1}.", gasStation.getAmountSold(gasType), gasType);
+            System.out.println(message);
+            logger.info(message);
+
+            message = MessageFormat.format("Earned {0} euros for {1}.", gasStation.getRevenue(gasType), gasType);
+            System.out.println(message);
+            logger.info(message);
+
+            message = MessageFormat.format("Performed {0} successful sales for {1}.",
+                    gasStation.getNumberOfSales(gasType), gasType);
+            System.out.println(message);
+            logger.info(message);
+
+            message = MessageFormat.format("Cancelled {0} sales for {1} due to insufficient gas available.",
+                    gasStation.getNumberOfCancellationsNoGas(gasType), gasType);
+            System.out.println(message);
+            logger.info(message);
+
+            message = MessageFormat.format("Cancelled {0} sales for {1} due the gas being too expensive.",
+                    gasStation.getNumberOfCancellationsTooExpensive(gasType), gasType);
+            System.out.println(message + "\n");
+            logger.info(message);
         }
     }
 
-    public static void getStatsTotals(GasStation gasStation) {
-        System.out.println("\nTotals: ");
-        System.out.println("Earned " + gasStation.getRevenue() + " euros in total.");
-        System.out.println("Performed " + gasStation.getNumberOfSales() + " successful sales.");
-        System.out.println("Cancelled " + gasStation.getNumberOfCancellationsNoGas()
-                + " sales due to insufficient gas available.");
-        System.out.println("Cancelled " + gasStation.getNumberOfCancellationsTooExpensive()
-                + " sales due the gas being too expensive.");
+    public static void showStatsTotals(GasStation gasStation) {
+
+        String message = "\nTotals: ";
+        System.out.println(message);
+        logger.info(message);
+
+        message = MessageFormat.format("Earned {0} euros in total.", gasStation.getRevenue());
+        System.out.println(message);
+        logger.info(message);
+
+        message = MessageFormat.format("Performed {0} successful sales.", gasStation.getNumberOfSales());
+        System.out.println(message);
+        logger.info(message);
+
+        message = MessageFormat.format("Cancelled {0} sales due to insufficient gas available.",
+                gasStation.getNumberOfCancellationsNoGas());
+        System.out.println(message);
+        logger.info(message);
+
+        message = MessageFormat.format("Cancelled {0} sales due to insufficient gas available.",
+                gasStation.getNumberOfCancellationsTooExpensive());
+        System.out.println(message);
+        logger.info(message);
+
     }
 
-    public static void getPumpsStatus(GasStation gasStation) {
-        System.out.println("\nStatus of the Pumps:");
+    public static void showPumpsStatus(GasStation gasStation) {
+        String message = "\nStatus of the Pumps:";
+        System.out.println(message);
+        logger.info(message);
 
         for (GasPump gasPump : gasStation.getGasPumps()) {
-            System.out.println("Gas pump of " + gasPump.getGasType() + ". " + gasPump.getRemainingAmount()
-                    + " liters of gas remaining.");
+            message = MessageFormat.format("Gas pump serving {0}. {1} liters of gas remaining.", gasPump.getGasType(),
+                    gasPump.getRemainingAmount());
+            System.out.println(message);
+            logger.info(message);
+
         }
     }
 
@@ -62,6 +107,14 @@ public class GasStationUtils {
         Thread someThread = new Thread(user);
         someThread.start();
 
+    }
+
+    public static Logger getLogger() {
+        return logger;
+    }
+
+    public static void setLogger(Logger theLogger) {
+        logger = theLogger;
     }
 
 }

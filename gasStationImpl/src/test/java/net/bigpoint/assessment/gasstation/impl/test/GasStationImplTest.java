@@ -1,6 +1,5 @@
 package net.bigpoint.assessment.gasstation.impl.test;
 
-import java.util.List;
 import java.util.concurrent.CyclicBarrier;
 
 import junit.framework.Assert;
@@ -27,7 +26,9 @@ public class GasStationImplTest {
 
     @Before
     public void setup() {
+
         gasStation = new GasStationImpl();
+
     }
 
     @Test
@@ -509,34 +510,121 @@ public class GasStationImplTest {
     }
 
     @Test
-    public void shouldPreserveTheCorrectDataOnSharedVariableContainingTheGasPumps() throws Exception {
+    public void shouldPreserveTheCorrectDataOnSharedVariablesNoMatterTheActualThreadExecution() throws Exception {
+
+        // We are talking about variables that will have the same value in the end no matter the execution
 
         // Given
-        double amountInLiters = 50d;
-        double maxPricePerLiter = 1.5d;
+        double amountInLitersDiesel = 50d;
+        double amountInLitersSuper = 50d;
+        double amountInLitersRegular = 50d;
+        double maxPricePerLiterDiesel = 1.3d;
+        double maxPricePerLiterSuper = 1.4d;
+        double maxPricePerLiterRegular = 1.5d;
 
-        final CyclicBarrier gate = new CyclicBarrier(3); // make the threads start at unison using a barrier gate
+        final CyclicBarrier gate = new CyclicBarrier(14); // make the threads start at unison using a barrier gate
 
-        GasStationUtils.createAndActivateUser(gasStation, gate, "Anne", 25d, 1.5, GasType.DIESEL);
-        GasStationUtils.createAndActivateUser(gasStation, gate, "Jimmy", 20d, 1.5, GasType.DIESEL);
+        GasStationUtils.createAndActivateUser(gasStation, gate, "Anne", 10d, 1.5, GasType.DIESEL);
+        GasStationUtils.createAndActivateUser(gasStation, gate, "Jimmy", 10d, 1.5, GasType.DIESEL);
+        GasStationUtils.createAndActivateUser(gasStation, gate, "Howard", 25d, 1.5, GasType.DIESEL);
+        GasStationUtils.createAndActivateUser(gasStation, gate, "Kim", 5d, 1.5, GasType.DIESEL);
+        GasStationUtils.createAndActivateUser(gasStation, gate, "Harold", 51d, 1.5, GasType.DIESEL);
+        GasStationUtils.createAndActivateUser(gasStation, gate, "Bob", 24d, 1.5, GasType.SUPER);
+        GasStationUtils.createAndActivateUser(gasStation, gate, "Rose", 20d, 1.5, GasType.SUPER);
+        GasStationUtils.createAndActivateUser(gasStation, gate, "Peter", 6d, 1.5, GasType.SUPER);
+        GasStationUtils.createAndActivateUser(gasStation, gate, "George", 30d, 1.2, GasType.SUPER);
+        GasStationUtils.createAndActivateUser(gasStation, gate, "Jill", 7d, 1.5, GasType.REGULAR);
+        GasStationUtils.createAndActivateUser(gasStation, gate, "Kat", 28d, 1.5, GasType.REGULAR);
+        GasStationUtils.createAndActivateUser(gasStation, gate, "Lars", 15d, 1.5, GasType.REGULAR);
+        GasStationUtils.createAndActivateUser(gasStation, gate, "Harry", 62d, 1.5, GasType.REGULAR);
 
-        GasPump pump1 = new GasPump(GasType.DIESEL, amountInLiters);
+        GasPump pump1 = new GasPump(GasType.DIESEL, amountInLitersDiesel);
+        GasPump pump2 = new GasPump(GasType.SUPER, amountInLitersSuper);
+        GasPump pump3 = new GasPump(GasType.REGULAR, amountInLitersRegular);
 
-        double expectedPumpGasContentAfterOperation = 5d;
+        double expectedLitersOfGasSoldDiesel = 50d;
+        double expectedLitersOfGasSoldSuper = 50d;
+        double expectedLitersOfGasSoldRegular = 50d;
+
+        double expectedRevenueEarned = 210d;
+        double expectedRevenueEarnedDiesel = 65d;
+        double expectedRevenueEarnedSuper = 70d;
+        double expectedRevenueEarnedRegular = 75d;
+
+        int expectedNumberOfSuccessfulSales = 10;
+        int expectedNumberOfSuccessfulSalesDiesel = 4;
+        int expectedNumberOfSuccessfulSalesSuper = 3;
+        int expectedNumberOfSuccessfulSalesRegular = 3;
+
+        int expectedCancellationsNoGas = 2;
+        int expectedCancellationsNoGasDiesel = 1;
+        int expectedCancellationsNoGasSuper = 0;
+        int expectedCancellationsNoGasRegular = 1;
+
+        int expectedCancellationsTooExpensive = 1;
+        int expectedCancellationsTooExpensiveDiesel = 0;
+        int expectedCancellationsTooExpensiveSuper = 1;
+        int expectedCancellationsTooExpensiveRegular = 0;
 
         // When
         gasStation.addGasPump(pump1);
-        gasStation.setPrice(GasType.DIESEL, maxPricePerLiter);
+        gasStation.addGasPump(pump2);
+        gasStation.addGasPump(pump3);
+        gasStation.setPrice(GasType.DIESEL, maxPricePerLiterDiesel);
+        gasStation.setPrice(GasType.SUPER, maxPricePerLiterSuper);
+        gasStation.setPrice(GasType.REGULAR, maxPricePerLiterRegular);
         gate.await(); // go!
 
-        Thread.sleep(5000); // wait for the people to fill in the gas!
+        Thread.sleep(30000); // wait for the people to fill in the gas!
 
-        List<GasPump> pumpList = (List<GasPump>) gasStation.getGasPumps();
-        pumpList.get(0).getRemainingAmount();
-        double actualPumpGasContentAfterOperation = pumpList.get(0).getRemainingAmount();
+        double actualLitersOfGasSoldDiesel = gasStation.getAmountSold(GasType.DIESEL);
+        double actualLitersOfGasSoldSuper = gasStation.getAmountSold(GasType.SUPER);
+        double actualLitersOfGasSoldRegular = gasStation.getAmountSold(GasType.REGULAR);
+
+        double actualRevenueEarned = gasStation.getRevenue();
+        double actualRevenueEarnedDiesel = gasStation.getRevenue(GasType.DIESEL);
+        double actualRevenueEarnedSuper = gasStation.getRevenue(GasType.SUPER);
+        double actualRevenueEarnedRegular = gasStation.getRevenue(GasType.REGULAR);
+
+        int actualNumberOfSuccessfulSales = gasStation.getNumberOfSales();
+        int actualNumberOfSuccessfulSalesDiesel = gasStation.getNumberOfSales(GasType.DIESEL);
+        int actualNumberOfSuccessfulSalesSuper = gasStation.getNumberOfSales(GasType.SUPER);
+        int actualNumberOfSuccessfulSalesRegular = gasStation.getNumberOfSales(GasType.REGULAR);
+
+        int actualCancellationsNoGas = gasStation.getNumberOfCancellationsNoGas();
+        int actualCancellationsNoGasDiesel = gasStation.getNumberOfCancellationsNoGas(GasType.DIESEL);
+        int actualCancellationsNoGasSuper = gasStation.getNumberOfCancellationsNoGas(GasType.SUPER);
+        int actualCancellationsNoGasRegular = gasStation.getNumberOfCancellationsNoGas(GasType.REGULAR);
+
+        int actualCancellationsTooExpensive = gasStation.getNumberOfCancellationsTooExpensive();
+        int actualCancellationsTooExpensiveDiesel = gasStation.getNumberOfCancellationsTooExpensive(GasType.DIESEL);
+        int actualCancellationsTooExpensiveSuper = gasStation.getNumberOfCancellationsTooExpensive(GasType.SUPER);
+        int actualCancellationsTooExpensiveRegular = gasStation.getNumberOfCancellationsTooExpensive(GasType.REGULAR);
 
         // Then
-        Assert.assertEquals(expectedPumpGasContentAfterOperation, actualPumpGasContentAfterOperation);
+        Assert.assertEquals(expectedLitersOfGasSoldDiesel, actualLitersOfGasSoldDiesel);
+        Assert.assertEquals(expectedLitersOfGasSoldSuper, actualLitersOfGasSoldSuper);
+        Assert.assertEquals(expectedLitersOfGasSoldRegular, actualLitersOfGasSoldRegular);
+
+        Assert.assertEquals(expectedRevenueEarned, actualRevenueEarned);
+        Assert.assertEquals(expectedRevenueEarnedDiesel, actualRevenueEarnedDiesel);
+        Assert.assertEquals(expectedRevenueEarnedSuper, actualRevenueEarnedSuper);
+        Assert.assertEquals(expectedRevenueEarnedRegular, actualRevenueEarnedRegular);
+
+        Assert.assertEquals(expectedNumberOfSuccessfulSales, actualNumberOfSuccessfulSales);
+        Assert.assertEquals(expectedNumberOfSuccessfulSalesDiesel, actualNumberOfSuccessfulSalesDiesel);
+        Assert.assertEquals(expectedNumberOfSuccessfulSalesSuper, actualNumberOfSuccessfulSalesSuper);
+        Assert.assertEquals(expectedNumberOfSuccessfulSalesRegular, actualNumberOfSuccessfulSalesRegular);
+
+        Assert.assertEquals(expectedCancellationsNoGas, actualCancellationsNoGas);
+        Assert.assertEquals(expectedCancellationsNoGasDiesel, actualCancellationsNoGasDiesel);
+        Assert.assertEquals(expectedCancellationsNoGasSuper, actualCancellationsNoGasSuper);
+        Assert.assertEquals(expectedCancellationsNoGasRegular, actualCancellationsNoGasRegular);
+
+        Assert.assertEquals(actualCancellationsTooExpensive, expectedCancellationsTooExpensive);
+        Assert.assertEquals(actualCancellationsTooExpensiveDiesel, expectedCancellationsTooExpensiveDiesel);
+        Assert.assertEquals(actualCancellationsTooExpensiveSuper, expectedCancellationsTooExpensiveSuper);
+        Assert.assertEquals(actualCancellationsTooExpensiveRegular, expectedCancellationsTooExpensiveRegular);
 
     }
 }

@@ -23,7 +23,9 @@ public class GasPumpTest {
 
     @Before
     public void setup() {
+
         gasPump = new GasPump(GAS_TYPE, AVAILABLE_GAS);
+
     }
 
     @Test

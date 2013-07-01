@@ -1,12 +1,17 @@
 package net.bigpoint.assesment.gasstation.utils;
 
+import java.text.MessageFormat;
 import java.util.concurrent.BrokenBarrierException;
 import java.util.concurrent.CyclicBarrier;
 
 import net.bigpoint.assessment.gasstation.GasStation;
 import net.bigpoint.assessment.gasstation.GasType;
+import net.bigpoint.assessment.gasstation.exception.ThereIsNoGasStationHereException;
 import net.bigpoint.assessment.gasstation.exceptions.GasTooExpensiveException;
 import net.bigpoint.assessment.gasstation.exceptions.NotEnoughGasException;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * 
@@ -28,6 +33,8 @@ public class User implements Runnable {
 
     private Double amountOfMoneyToPay = 0.0;
 
+    private static final Logger logger = LoggerFactory.getLogger(User.class);
+
     @Override
     public void run() {
 
@@ -39,34 +46,51 @@ public class User implements Runnable {
             e1.printStackTrace();
         }
 
-        System.out.println(userName + ": Trying to fill some gas up. I need " + amountOfGasNeeded + " liters of "
-                + typeOfGasNeeded + " and I will pay " + maxMoneyPerLiter + " euros max.");
+        String message = MessageFormat.format(
+                "{0}: Trying to fill some gas up. I need {1} liters of {2} and I will pay {3} euros max.", userName,
+                amountOfGasNeeded, typeOfGasNeeded, maxMoneyPerLiter);
+        System.out.println(message);
+        logger.info(message);
 
         try {
             amountOfMoneyToPay = getSomeGas(gasStation, typeOfGasNeeded, amountOfGasNeeded, maxMoneyPerLiter);
         } catch (GasTooExpensiveException e) {
-            System.out
-                    .println(userName + ": Woops, " + typeOfGasNeeded + " is too expensive on this gas station, man.");
+            message = MessageFormat.format("{0}: Oops, {1} gas is too expensive on this gas station.", userName,
+                    typeOfGasNeeded);
+            System.out.println(message);
+            logger.info(message);
             return;
         } catch (NotEnoughGasException e) {
-            System.out.println(userName + ": Woops, there is no enough " + typeOfGasNeeded
-                    + " on this gas station, man.");
+            message = MessageFormat.format(userName + ": Oops, there is no enough {1} gas on this gas station.",
+                    userName, typeOfGasNeeded);
+            System.out.println(message);
+            logger.info(message);
+            return;
+        } catch (ThereIsNoGasStationHereException e) {
+            message = MessageFormat
+                    .format("{0}: Oops, no gas station here, we are in the middle of the highway! I will keep looking for one.",
+                            userName);
+            System.out.println(message);
+            logger.info(message);
             return;
         }
-        System.out.println(userName + ": Just filled her up now with " + amountOfGasNeeded + " liters of "
-                + typeOfGasNeeded + " and paid " + amountOfMoneyToPay + " euros.");
+
+        message = MessageFormat.format("{0}: Just filled her up now with {1} liters of {2} and paid {3} euros.",
+                userName, amountOfGasNeeded, typeOfGasNeeded, amountOfMoneyToPay);
+        System.out.println(message);
+        logger.info(message);
     }
 
     private double getSomeGas(GasStation gasStation, GasType type, double amountInLiters, double maxPricePerLiter)
-            throws NotEnoughGasException, GasTooExpensiveException {
+            throws GasTooExpensiveException, NotEnoughGasException, ThereIsNoGasStationHereException {
 
         double price = 0.0d;
 
         if (gasStation != null) {
             price = gasStation.buyGas(type, amountInLiters, maxPricePerLiter);
         } else {
-            System.out.println(userName
-                    + ": Woops, no gas here, we are in the middle of the highway, man! I'll keep looking for one");
+
+            throw new ThereIsNoGasStationHereException();
         }
 
         return price;
@@ -115,4 +139,13 @@ public class User implements Runnable {
     public void setGate(CyclicBarrier gate) {
         this.gate = gate;
     }
+
+    public CyclicBarrier getGate() {
+        return this.gate;
+    }
+
+    public Double getAmountOfMoneyToPay() {
+        return amountOfMoneyToPay;
+    }
+
 }

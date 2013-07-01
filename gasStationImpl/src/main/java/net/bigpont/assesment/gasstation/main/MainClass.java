@@ -8,6 +8,9 @@ import net.bigpoint.assessment.gasstation.GasPump;
 import net.bigpoint.assessment.gasstation.GasStation;
 import net.bigpoint.assessment.gasstation.GasType;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
  * 
  * This class implements an example to test the thread-safe implementation GasStationImpl of interface GasStation
@@ -21,7 +24,10 @@ public class MainClass {
 
     public static void main(String[] args) throws Exception {
 
-        System.out.println("Starting...");
+        Logger logger = LoggerFactory.getLogger(MainClass.class);
+
+        String message = "Starting...";
+        logger.debug(message);
 
         GasPump gasPumpDiesel1 = new GasPump(GasType.DIESEL, 70d);
         GasPump gasPumpDiesel2 = new GasPump(GasType.DIESEL, 30d);
@@ -40,9 +46,12 @@ public class MainClass {
         gasStation.setPrice(GasType.SUPER, 1.5);
 
         // pumps status before
-        GasStationUtils.getPumpsStatus(gasStation);
+        GasStationUtils.showPumpsStatus(gasStation);
 
         final CyclicBarrier gate = new CyclicBarrier(4); // make the threads start at unison using a barrier gate
+
+        message = "Setting cyclic barrier to 4, three users and main threads.";
+        logger.debug(message);
 
         GasStationUtils.createAndActivateUser(gasStation, gate, "Ralph", 30d, 1.4d, GasType.DIESEL);
         GasStationUtils.createAndActivateUser(gasStation, gate, "Mary", 40d, 1.48d, GasType.DIESEL);
@@ -50,19 +59,19 @@ public class MainClass {
 
         gate.await(); // go!
 
-        System.out.println("\nAll threads started\n");
+        message = "\nAll threads started\n";
+        logger.debug(message);
 
         Thread.sleep(5000 * NUMBER_OF_USERS);
 
         // stats per gas type
-        GasStationUtils.getStatsPerGasType(gasStation);
+        GasStationUtils.showStatsPerGasType(gasStation);
 
         // stats totals
-        GasStationUtils.getStatsTotals(gasStation);
+        GasStationUtils.showStatsTotals(gasStation);
 
         // pump status afterwards
-        GasStationUtils.getPumpsStatus(gasStation);
+        GasStationUtils.showPumpsStatus(gasStation);
 
     }
-
 }

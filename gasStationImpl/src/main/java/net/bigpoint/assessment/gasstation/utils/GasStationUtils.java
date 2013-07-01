@@ -1,4 +1,4 @@
-package net.bigpoint.assesment.gasstation.utils;
+package net.bigpoint.assessment.gasstation.utils;
 
 import java.text.MessageFormat;
 import java.util.concurrent.CyclicBarrier;

@@ -1,12 +1,12 @@
-package net.bigpont.assesment.gasstation.main;
+package net.bigpoint.assessment.gasstation.main;
 
 import java.util.concurrent.CyclicBarrier;
 
-import net.bigpoint.assesment.gasstation.impl.GasStationImpl;
-import net.bigpoint.assesment.gasstation.utils.GasStationUtils;
 import net.bigpoint.assessment.gasstation.GasPump;
 import net.bigpoint.assessment.gasstation.GasStation;
 import net.bigpoint.assessment.gasstation.GasType;
+import net.bigpoint.assessment.gasstation.impl.GasStationImpl;
+import net.bigpoint.assessment.gasstation.utils.GasStationUtils;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

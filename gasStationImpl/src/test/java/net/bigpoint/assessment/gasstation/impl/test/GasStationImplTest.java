@@ -3,12 +3,12 @@ package net.bigpoint.assessment.gasstation.impl.test;
 import java.util.concurrent.CyclicBarrier;
 
 import junit.framework.Assert;
-import net.bigpoint.assesment.gasstation.impl.GasStationImpl;
-import net.bigpoint.assesment.gasstation.utils.GasStationUtils;
 import net.bigpoint.assessment.gasstation.GasPump;
 import net.bigpoint.assessment.gasstation.GasType;
 import net.bigpoint.assessment.gasstation.exceptions.GasTooExpensiveException;
 import net.bigpoint.assessment.gasstation.exceptions.NotEnoughGasException;
+import net.bigpoint.assessment.gasstation.impl.GasStationImpl;
+import net.bigpoint.assessment.gasstation.utils.GasStationUtils;
 
 import org.junit.Before;
 import org.junit.Test;

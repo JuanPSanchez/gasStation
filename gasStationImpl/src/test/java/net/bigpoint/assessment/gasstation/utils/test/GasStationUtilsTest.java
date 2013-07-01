@@ -1,12 +1,12 @@
-package net.bigpont.assesment.gasstation.utils.test;
+package net.bigpoint.assessment.gasstation.utils.test;
 
 import java.util.ArrayList;
 import java.util.Collection;
 
-import net.bigpoint.assesment.gasstation.utils.GasStationUtils;
 import net.bigpoint.assessment.gasstation.GasPump;
 import net.bigpoint.assessment.gasstation.GasStation;
 import net.bigpoint.assessment.gasstation.GasType;
+import net.bigpoint.assessment.gasstation.utils.GasStationUtils;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -133,9 +133,9 @@ public class GasStationUtilsTest {
         GasStationUtils.showPumpsStatus(gasStationMock);
 
         // Then
-        Mockito.verify(loggerMock, Mockito.times(1)).info("Gas pump of DIESEL. 40 liters of gas remaining.");
-        Mockito.verify(loggerMock, Mockito.times(1)).info("Gas pump of SUPER. 50 liters of gas remaining.");
-        Mockito.verify(loggerMock, Mockito.times(1)).info("Gas pump of REGULAR. 60 liters of gas remaining.");
+        Mockito.verify(loggerMock, Mockito.times(1)).info("Gas pump serving DIESEL. 40 liters of gas remaining.");
+        Mockito.verify(loggerMock, Mockito.times(1)).info("Gas pump serving SUPER. 50 liters of gas remaining.");
+        Mockito.verify(loggerMock, Mockito.times(1)).info("Gas pump serving REGULAR. 60 liters of gas remaining.");
 
     }
 
